@@ -4,6 +4,7 @@ import com.haynes.identifly.service.dto.request.UserCreateRequest;
 import com.haynes.identifly.service.dto.request.UserUpdateRequest;
 import com.haynes.identifly.service.dto.response.UserResponse;
 import com.haynes.identifly.service.entity.User;
+import com.haynes.identifly.service.mapper.UserMapper;
 import com.haynes.identifly.service.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,15 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserMapper userMapper;
 
     @PostMapping()
-    APIResponse<User> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest){
-        APIResponse<User> apiResponse = new APIResponse<>();
-        apiResponse.setResult(userService.createRequest(userCreateRequest));
+    APIResponse<UserResponse> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest){
+        User newUser = userService.createRequest(userCreateRequest);
+        UserResponse userResponse = userMapper.toUserResponse(newUser);
+        APIResponse<UserResponse> apiResponse = new APIResponse<>();
+        apiResponse.setResult(userResponse);
         return apiResponse;
     }
 

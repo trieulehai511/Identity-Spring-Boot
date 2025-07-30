@@ -24,12 +24,14 @@ import org.springframework.core.codec.ByteArrayEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.naming.AuthenticationNotSupportedException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Slf4j
 @Service
@@ -60,19 +62,19 @@ public class AuthenticationService {
         if(!authenticated){
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-        var token = genarateToken(request.getUsername());
+        var token = genarateToken(user);
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
-    private String genarateToken(String username){
+    private String genarateToken(User user){
 
 
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().
-                subject(username).
+                subject(user.getUsername()).
                 issuer("lehaitrieu").
                 issueTime(new Date()).
                 expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-
+                .claim("scope",buildScope(user))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader,payload);
@@ -83,5 +85,12 @@ public class AuthenticationService {
             log.error("Không thể tạo token", e);
             throw new RuntimeException(e);
         }
+    }
+    private String buildScope(User user){
+        StringJoiner stringJoiner =new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles())){
+            user.getRoles().forEach(stringJoiner::add);
+        }
+        return stringJoiner.toString();
     }
 }

@@ -3,16 +3,18 @@ import com.haynes.identifly.service.dto.request.APIResponse;
 import com.haynes.identifly.service.dto.request.UserCreateRequest;
 import com.haynes.identifly.service.dto.request.UserUpdateRequest;
 import com.haynes.identifly.service.dto.response.UserResponse;
-import com.haynes.identifly.service.entity.User;
 import com.haynes.identifly.service.mapper.UserMapper;
 import com.haynes.identifly.service.service.UserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -23,22 +25,23 @@ public class UserController {
 
     @PostMapping()
     APIResponse<UserResponse> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest){
-        User newUser = userService.createRequest(userCreateRequest);
-        UserResponse userResponse = userMapper.toUserResponse(newUser);
-        APIResponse<UserResponse> apiResponse = new APIResponse<>();
-        apiResponse.setResult(userResponse);
-        return apiResponse;
+        return APIResponse.<UserResponse>builder().result(userService.createRequest(userCreateRequest)).build();
     }
 
     @GetMapping()
-    List<User> getUSer(){
-        return userService.getUsers();
+    APIResponse<List<UserResponse>> getUSers() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("Username: {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+        return APIResponse.<List<UserResponse>>builder().result(userService.getUsers()).build();
     }
 
     @GetMapping("{userID}")
-    UserResponse getUserById(@PathVariable("userID") String userID ){
-        return userService.getUserById(userID);
+    APIResponse<UserResponse> getUserById(@PathVariable("userID") String userID ){
+        return APIResponse.<UserResponse>builder().result(userService.getUserById(userID)).build();
     }
+
     @DeleteMapping("{userID}")
     String deleteUser(@PathVariable("userID") String userID){
         userService.deleteUser(userID);

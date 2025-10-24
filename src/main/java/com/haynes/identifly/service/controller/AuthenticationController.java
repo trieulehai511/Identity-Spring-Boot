@@ -1,6 +1,6 @@
 package com.haynes.identifly.service.controller;
 
-import com.haynes.identifly.service.dto.request.APIResponse;
+import com.haynes.identifly.service.dto.response.APIResponse;
 import com.haynes.identifly.service.dto.request.AuthenticationRequest;
 import com.haynes.identifly.service.dto.request.IntrospectRequest;
 import com.haynes.identifly.service.dto.response.AuthenticationResponse;

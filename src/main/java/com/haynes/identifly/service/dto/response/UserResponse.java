@@ -1,5 +1,6 @@
 package com.haynes.identifly.service.dto.response;
 
+import com.haynes.identifly.service.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,5 +18,5 @@ public class UserResponse {
      String firstName;
      String lastName;
      LocalDate dcb;
-     Set<String> roles;
+     Set<Role> roles;
 }

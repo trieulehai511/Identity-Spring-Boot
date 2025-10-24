@@ -1,4 +1,4 @@
-package com.haynes.identifly.service.dto.request;
+package com.haynes.identifly.service.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,5 +1,5 @@
 package com.haynes.identifly.service.controller;
-import com.haynes.identifly.service.dto.request.APIResponse;
+import com.haynes.identifly.service.dto.response.APIResponse;
 import com.haynes.identifly.service.dto.request.UserCreateRequest;
 import com.haynes.identifly.service.dto.request.UserUpdateRequest;
 import com.haynes.identifly.service.dto.response.UserResponse;
@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -31,15 +30,19 @@ public class UserController {
     @GetMapping()
     APIResponse<List<UserResponse>> getUSers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-
         log.info("Username: {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
         return APIResponse.<List<UserResponse>>builder().result(userService.getUsers()).build();
     }
 
-    @GetMapping("{userID}")
+    @GetMapping("/{userID}")
     APIResponse<UserResponse> getUserById(@PathVariable("userID") String userID ){
         return APIResponse.<UserResponse>builder().result(userService.getUserById(userID)).build();
+    }
+
+    @GetMapping("/myinfo")
+    APIResponse<UserResponse> getMyInfo(){
+        return APIResponse.<UserResponse>builder().result(userService.getMyInfo()).build();
     }
 
     @DeleteMapping("{userID}")
@@ -52,4 +55,5 @@ public class UserController {
         userService.updateUser(request,userID);
         return "Thao tác thành công";
     }
+
 }

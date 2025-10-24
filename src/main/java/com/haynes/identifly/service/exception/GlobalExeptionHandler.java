@@ -1,7 +1,8 @@
 package com.haynes.identifly.service.exception;
 
-import com.haynes.identifly.service.dto.request.APIResponse;
+import com.haynes.identifly.service.dto.response.APIResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,13 +19,23 @@ public class GlobalExeptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    @ExceptionHandler(value =  AccessDeniedException.class)
+    ResponseEntity<APIResponse> handingAccessDeniedException(AccessDeniedException runtimeException){
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        return ResponseEntity.status(errorCode.getStatusCode()).
+                body(APIResponse.builder().
+                        code(errorCode.getCode()).
+                        message(errorCode.getMessage())
+                        .build());
+    }
+
     @ExceptionHandler(value= AppException.class)
     ResponseEntity<APIResponse> handlingAppException(AppException runtimeException){
         ErrorCode errorCode = runtimeException.getErrorCode();
         APIResponse apiResponse = new APIResponse();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -40,6 +51,6 @@ public class GlobalExeptionHandler {
         APIResponse apiResponse = new APIResponse();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 }
